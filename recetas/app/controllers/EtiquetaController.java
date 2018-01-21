@@ -6,13 +6,14 @@ import javax.inject.Inject;
 
 import io.ebean.PagedList;
 import models.ApiKey;
-import models.Cocinero;
 import models.Etiqueta;
 import models.Receta;
 import play.data.Form;
 import play.data.FormFactory;
+import play.i18n.Messages;
 import play.libs.Json;
 import play.mvc.Controller;
+import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
 
@@ -26,10 +27,12 @@ public class EtiquetaController extends Controller {
 			
 			String apikey = request().getQueryString("APIKey");
 			if (apikey == null) {
-				return Results.status(409, new ErrorObject("2","No se ha enviado ninguna APIKey").toJson());
+				Messages messages = Http.Context.current().messages();
+				return Results.status(409, new ErrorObject("2",messages.at("no-apikey-sent")).toJson());
 			}else if (ApiKey.findByKey(apikey) == null){
-				return Results.status(409, new ErrorObject("2","La APIKey es incorrecta").toJson());
-			}else {
+				Messages messages = Http.Context.current().messages();
+				return Results.status(409, new ErrorObject("2",messages.at("\n" + "apikey-is-incorrect")).toJson());		
+				}else {
 			
 				Form<Etiqueta> form = formFactory
 										.form(Etiqueta.class)
@@ -45,7 +48,8 @@ public class EtiquetaController extends Controller {
 				if (e.actualizar(nombre)) {
 					return Results.ok();
 				}else {
-					return Results.status(409, new ErrorObject("2","Error en el UPDATE").toJson());
+					Messages messages = Http.Context.current().messages();
+					return Results.status(409, new ErrorObject("2",messages.at("error-in-the-UPDATE")).toJson());
 				}
 			}
 					
@@ -57,9 +61,11 @@ public class EtiquetaController extends Controller {
 			
 			String apikey = request().getQueryString("APIKey");
 			if (apikey == null) {
-				return Results.status(409, new ErrorObject("2","No se ha enviado ninguna APIKey").toJson());
+				Messages messages = Http.Context.current().messages();
+				return Results.status(409, new ErrorObject("2",messages.at("no-apikey-sent")).toJson());
 			}else if (ApiKey.findByKey(apikey) == null){
-				return Results.status(409, new ErrorObject("2","La APIKey es incorrecta").toJson());
+				Messages messages = Http.Context.current().messages();
+				return Results.status(409, new ErrorObject("2",messages.at("\n" + "apikey-is-incorrect")).toJson());
 			}else {
 				Etiqueta e = Etiqueta.findByName(nombre);
 				if(e == null) {
@@ -77,9 +83,11 @@ public class EtiquetaController extends Controller {
 		public Result retrieveEtiquetasCollection(Integer page) {
 			String apikey = request().getQueryString("APIKey");
 			if (apikey == null) {
-				return Results.status(409, new ErrorObject("2","No se ha enviado ninguna APIKey").toJson());
-			}else if (ApiKey.findByKey(apikey) == null){
-				return Results.status(409, new ErrorObject("2","La APIKey es incorrecta").toJson());
+				Messages messages = Http.Context.current().messages();
+				return Results.status(409, new ErrorObject("2",messages.at("no-apikey-sent")).toJson());			
+				}else if (ApiKey.findByKey(apikey) == null){
+				Messages messages = Http.Context.current().messages();
+				return Results.status(409, new ErrorObject("2",messages.at("\n" + "apikey-is-incorrect")).toJson());
 			}else {
 				PagedList<Etiqueta> list = Etiqueta.findPage(page);
 				List<Etiqueta> etiquetas = list.getList();
@@ -104,9 +112,11 @@ public class EtiquetaController extends Controller {
 			
 			String apikey = request().getQueryString("APIKey");
 			if (apikey == null) {
-				return Results.status(409, new ErrorObject("2","No se ha enviado ninguna APIKey").toJson());
-			}else if (ApiKey.findByKey(apikey) == null){
-				return Results.status(409, new ErrorObject("2","La APIKey es incorrecta").toJson());
+				Messages messages = Http.Context.current().messages();
+				return Results.status(409, new ErrorObject("2",messages.at("no-apikey-sent")).toJson());			
+				}else if (ApiKey.findByKey(apikey) == null){
+				Messages messages = Http.Context.current().messages();
+				return Results.status(409, new ErrorObject("2",messages.at("\n" + "apikey-is-incorrect")).toJson());
 			}else {
 			
 				Etiqueta e = Etiqueta.findByName(etiquetaName);

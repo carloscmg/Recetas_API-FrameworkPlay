@@ -2,29 +2,30 @@ package controllers;
 
 import play.mvc.Result;
 import play.mvc.Results;
-
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+
 
 import io.ebean.PagedList;
 import models.ApiKey;
 import models.Cocinero;
+
 import models.Receta;
 import play.data.Form;
 import play.data.FormFactory;
+import play.i18n.Messages;
 import play.libs.Json;
 import play.mvc.Controller;
+import play.mvc.Http;
 
 public class RecetaController extends Controller {
 
 @Inject 
 private FormFactory formFactory;
+
+
 
 	
 
@@ -32,9 +33,11 @@ private FormFactory formFactory;
 		
 		String apikey = request().getQueryString("APIKey");
 		if (apikey == null) {
-			return Results.status(409, new ErrorObject("2","No se ha enviado ninguna APIKey").toJson());
+			Messages messages = Http.Context.current().messages();
+			return Results.status(409, new ErrorObject("2",messages.at("no-apikey-sent")).toJson());
 		}else if (ApiKey.findByKey(apikey) == null){
-			return Results.status(409, new ErrorObject("2","La APIKey es incorrecta").toJson());
+			Messages messages = Http.Context.current().messages();
+			return Results.status(409, new ErrorObject("2",messages.at("\n" + "apikey-is-incorrect")).toJson());
 		}else {
 		
 	
@@ -53,7 +56,8 @@ private FormFactory formFactory;
 			if(receta.checkAndCreate()) {
 				return Results.created();
 			}else {
-				return Results.status(409, new ErrorObject("2","Receta repetida").toJson());
+				Messages messages = Http.Context.current().messages();
+				return Results.status(409, new ErrorObject("2",messages.at("repeated-recipe")).toJson());
 			}
 		}
 
@@ -62,10 +66,13 @@ private FormFactory formFactory;
 
 	public Result retrieveReceta(Long id) {
 		String apikey = request().getQueryString("APIKey");
+		
 		if (apikey == null) {
-			return Results.status(409, new ErrorObject("2","No se ha enviado ninguna APIKey").toJson());
+			Messages messages = Http.Context.current().messages();
+			return Results.status(409, new ErrorObject("2",messages.at("no-apikey-sent")).toJson());
 		}else if (ApiKey.findByKey(apikey) == null){
-			return Results.status(409, new ErrorObject("2","La APIKey es incorrecta").toJson());
+			Messages messages = Http.Context.current().messages();
+			return Results.status(409, new ErrorObject("2",messages.at("\n" + "apikey-is-incorrect")).toJson());
 		}else {
 			Receta r = Receta.findById(id);
 			if(r == null) {
@@ -89,9 +96,11 @@ private FormFactory formFactory;
 		
 		String apikey = request().getQueryString("APIKey");
 		if (apikey == null) {
-			return Results.status(409, new ErrorObject("2","No se ha enviado ninguna APIKey").toJson());
+			Messages messages = Http.Context.current().messages();
+			return Results.status(409, new ErrorObject("2",messages.at("no-apikey-sent")).toJson());
 		}else if (ApiKey.findByKey(apikey) == null){
-			return Results.status(409, new ErrorObject("2","La APIKey es incorrecta").toJson());
+			Messages messages = Http.Context.current().messages();
+			return Results.status(409, new ErrorObject("2",messages.at("\n" + "apikey-is-incorrect")).toJson());
 		}else {
 			Form<Receta> form = formFactory
 									.form(Receta.class)
@@ -107,7 +116,8 @@ private FormFactory formFactory;
 			if (r.actualizar(id)) {
 				return Results.ok();
 			}else {
-				return Results.status(409, new ErrorObject("2","Error en el UPDATE").toJson());
+				Messages messages = Http.Context.current().messages();
+				return Results.status(409, new ErrorObject("2",messages.at("error-in-the-UPDATE")).toJson());
 			}
 				
 		}	
@@ -117,9 +127,11 @@ private FormFactory formFactory;
 	public Result deleteReceta(Long idReceta) {
 		String apikey = request().getQueryString("APIKey");
 		if (apikey == null) {
-			return Results.status(409, new ErrorObject("2","No se ha enviado ninguna APIKey").toJson());
+			Messages messages = Http.Context.current().messages();
+			return Results.status(409, new ErrorObject("2",messages.at("no-apikey-sent")).toJson());
 		}else if (ApiKey.findByKey(apikey) == null){
-			return Results.status(409, new ErrorObject("2","La APIKey es incorrecta").toJson());
+			Messages messages = Http.Context.current().messages();
+			return Results.status(409, new ErrorObject("2",messages.at("\n" + "apikey-is-incorrect")).toJson());
 		}else {
 			Receta r = Receta.findById(idReceta);
 			if(r == null) {
@@ -133,13 +145,15 @@ private FormFactory formFactory;
 		}
 	}
 	
-
+ 
 	public Result retrieveRecetasCollection(Integer page) {
 		String apikey = request().getQueryString("APIKey");
 		if (apikey == null) {
-			return Results.status(409, new ErrorObject("2","No se ha enviado ninguna APIKey").toJson());
+			Messages messages = Http.Context.current().messages();
+			return Results.status(409, new ErrorObject("2",messages.at("no-apikey-sent")).toJson());
 		}else if (ApiKey.findByKey(apikey) == null){
-			return Results.status(409, new ErrorObject("2","La APIKey es incorrecta").toJson());
+			Messages messages = Http.Context.current().messages();
+			return Results.status(409, new ErrorObject("2",messages.at("\n" + "apikey-is-incorrect")).toJson());
 		}else {
 		
 			String dificultad = request().getQueryString("dificultad");
@@ -255,6 +269,21 @@ private FormFactory formFactory;
 				}else {
 					return Results.status(415);
 				}
+			}else if ((dificultad != null) && (titulo != null) && (tipo != null)) {//DificultadTituloTipo
+				PagedList<Receta> list = Receta.findByDificultadTipoTitulo(dificultad, titulo, tipo, page);
+				List<Receta> recetas = list.getList();
+				Integer count = list.getTotalPageCount();
+				if (request().accepts("application/json")) {
+				    return Results
+						    .ok(Json.toJson(recetas))
+						    .withHeader("X-Recetas-Count", count.toString());
+				} else if (request().accepts("application/xml")) {
+					return Results
+							.ok(views.xml.recetas.render(recetas))
+							.withHeader("X-Recetas-Count", count.toString());
+				}else {
+					return Results.status(415);
+				}
 			}
 				
 			
@@ -267,9 +296,11 @@ private FormFactory formFactory;
 		
 		String apikey = request().getQueryString("APIKey");
 		if (apikey == null) {
-			return Results.status(409, new ErrorObject("2","No se ha enviado ninguna APIKey").toJson());
+			Messages messages = Http.Context.current().messages();
+			return Results.status(409, new ErrorObject("2",messages.at("no-apikey-sent")).toJson());
 		}else if (ApiKey.findByKey(apikey) == null){
-			return Results.status(409, new ErrorObject("2","La APIKey es incorrecta").toJson());
+			Messages messages = Http.Context.current().messages();
+			return Results.status(409, new ErrorObject("2",messages.at("\n" + "apikey-is-incorrect")).toJson());
 		}else {
 		
 			Receta r = Receta.findById(id);
@@ -297,9 +328,11 @@ private FormFactory formFactory;
 		
 		String apikey = request().getQueryString("APIKey");
 		if (apikey == null) {
-			return Results.status(409, new ErrorObject("2","No se ha enviado ninguna APIKey").toJson());
-		}else if (ApiKey.findByKey(apikey) == null){
-			return Results.status(409, new ErrorObject("2","La APIKey es incorrecta").toJson());
+			Messages messages = Http.Context.current().messages();
+			return Results.status(409, new ErrorObject("2",messages.at("no-apikey-sent")).toJson());		
+			}else if (ApiKey.findByKey(apikey) == null){
+				Messages messages = Http.Context.current().messages();
+				return Results.status(409, new ErrorObject("2",messages.at("\n" + "apikey-is-incorrect")).toJson());
 		}else {
 		
 			Receta r = Receta.findById(idReceta);
@@ -314,7 +347,8 @@ private FormFactory formFactory;
 				
 				r.deleteEtiqueta(etiquetaName);
 				
-				return ok("Etiqueta desasignada\n");
+				Messages messages = Http.Context.current().messages();
+				return ok(messages.at("unassigned-tag"));
 			}
 		
 		}

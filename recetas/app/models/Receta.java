@@ -3,7 +3,6 @@ import java.util.*;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -16,7 +15,6 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import io.ebean.Ebean;
 import io.ebean.Finder;
-import io.ebean.Model;
 import io.ebean.PagedList;
 import play.data.validation.Constraints.Required;
 import validators.Difficulty;
@@ -28,17 +26,17 @@ import validators.TypeOfKitchen;
 @Entity
 public class Receta  extends ModeloBase {
 		
-	
-	@Required(message="Titulo de la receta requerido")
+
+	@Required(message="title-recipe-required")
 	private String titulo;
 	
-	@Required(message="tipoCocina requerido")
+	@Required(message="type-required")
 	@OneWord
 	@LowerCase
 	@TypeOfKitchen
 	private String tipoCocina;
 	
-	@Required(message="dificultad requerida")
+	@Required(message="difficulty-required")
 	@OneWord
 	@LowerCase
 	@Difficulty
@@ -123,7 +121,7 @@ public class Receta  extends ModeloBase {
 		
 		public static PagedList<Receta> findByTipoCocina(String tipo, Integer page) {
 			if (tipo == null) {
-				throw new IllegalArgumentException(); 
+				throw new IllegalArgumentException();
 			}
 			return find.query()
 					.where()
@@ -168,6 +166,16 @@ public class Receta  extends ModeloBase {
 			return find.query()
 					.where()
 					.eq("tipoCocina", tipo)
+					.contains("titulo", titulo)
+					.setMaxRows(25)
+					.setFirstRow(25*page)
+					.findPagedList();
+		}
+		public static PagedList<Receta> findByDificultadTipoTitulo(String dificultad, String titulo, String tipo, Integer page) {
+			return find.query()
+					.where()
+					.eq("tipoCocina", tipo)
+					.eq("dificultad", tipo)
 					.contains("titulo", titulo)
 					.setMaxRows(25)
 					.setFirstRow(25*page)
@@ -375,16 +383,6 @@ public class Receta  extends ModeloBase {
 
 		public void setEtiquetas(List<Etiqueta> etiquetas) {
 			this.etiquetas = etiquetas;
-		}
-
-		//Consideramos que dos recetas son iguales cuando tengan el mismo Titulo
-		@Override
-		public boolean equals(Object obj) {
-			if(obj instanceof Receta){
-				Receta otherReceta = (Receta)obj;
-				return this.getTitulo().equals(otherReceta.getTitulo());
-			}
-			return false;
 		}
 
 

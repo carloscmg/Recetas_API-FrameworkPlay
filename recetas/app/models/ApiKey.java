@@ -10,7 +10,7 @@ import validators.OneWord;
 @Entity
 public class ApiKey extends ModeloBase {
 	
-	@Required(message = "Key requerida")
+	@Required(message = "key-is-required")
 	@OneWord
 	private String key;
 	
@@ -19,7 +19,7 @@ public class ApiKey extends ModeloBase {
 	
 	public static ApiKey findByKey(String apikey) {
 		if (apikey == null) {
-			throw new IllegalArgumentException("Se requiere el id"); //Le parece un mal invento
+			throw new IllegalArgumentException("Se requiere el id"); 
 		}
 		return find
 				.query()

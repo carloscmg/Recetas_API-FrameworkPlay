@@ -3,11 +3,11 @@ package controllers;
 import javax.inject.Inject;
 
 import models.ApiKey;
-import models.Etiqueta;
-import models.Receta;
 import play.data.Form;
 import play.data.FormFactory;
+import play.i18n.Messages;
 import play.mvc.Controller;
+import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
 
@@ -36,7 +36,8 @@ public class ApiKeyController extends Controller {
 		if(apikey.checkAndCreate()) {
 			return Results.created();
 		}else {
-			return Results.status(409, new ErrorObject("2","ApiKey repetida").toJson());
+			Messages messages = Http.Context.current().messages();
+			return Results.status(409, new ErrorObject("2",messages.at("repeated-apikey")).toJson());
 		}
 
 	}
@@ -46,10 +47,12 @@ public class ApiKeyController extends Controller {
 		
 		String apikey = request().getQueryString("APIKey");
 		if (apikey == null) {
-			return Results.status(409, new ErrorObject("2","No se ha enviado ninguna APIKey").toJson());
+			Messages messages = Http.Context.current().messages();
+			return Results.status(409, new ErrorObject("2",messages.at("no-apikey-sent")).toJson());
 		}else if (ApiKey.findByKey(apikey) == null){
-			return Results.status(409, new ErrorObject("2","La APIKey es incorrecta").toJson());
-		}else {
+			Messages messages = Http.Context.current().messages();
+			return Results.status(409, new ErrorObject("2",messages.at("\n" + "apikey-is-incorrect")).toJson());		
+			}else {
 		
 			ApiKey ak = ApiKey.findByKey(key);
 			if(ak == null) {

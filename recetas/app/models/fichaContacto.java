@@ -1,8 +1,6 @@
 package models;
 
-import java.util.*;
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.OneToOne;
 
 import org.hibernate.validator.constraints.Email;
@@ -11,8 +9,6 @@ import org.hibernate.validator.constraints.URL;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import io.ebean.Finder;
-import io.ebean.Model;
-import io.ebean.PagedList;
 import play.data.validation.Constraints.Required;
 
 
@@ -21,10 +17,10 @@ public class fichaContacto extends ModeloBase {
 
 
 	
-	@Required(message="Telefono requerido")
+	@Required(message="phone-number-required")
 	private Integer telefono;
 	
-	@Required(message="Email requerido")
+	@Required(message="email-required")
 	@Email
 	private String email;
 	

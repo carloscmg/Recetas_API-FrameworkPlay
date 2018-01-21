@@ -18,7 +18,7 @@ import validators.OneWord;
 @Entity
 public class Etiqueta extends ModeloBase {
 	
-	@Required(message = "Nombre de la etiqueta requerido")
+	@Required(message = "tag-name-required")
 	@OneWord
 	@LowerCase
 	private String nombre;
@@ -33,7 +33,7 @@ public class Etiqueta extends ModeloBase {
 	
 	public static Etiqueta findByName(String palabra) {
 		if (palabra == null) {
-			throw new IllegalArgumentException(); 
+			throw new IllegalArgumentException();
 		}
 		return find.query()
 				.where()
@@ -45,7 +45,7 @@ public class Etiqueta extends ModeloBase {
 	
 	public static PagedList<Etiqueta> findPage(Integer page) {
 		if (page == null) {
-			throw new IllegalArgumentException(); 
+			throw new IllegalArgumentException();
 		}
 		return find.query()
 				.setMaxRows(25)

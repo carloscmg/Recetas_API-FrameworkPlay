@@ -4,35 +4,33 @@ import java.util.*;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.validation.Valid;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import io.ebean.Ebean;
 import io.ebean.Finder;
-import io.ebean.Model;
 import io.ebean.PagedList;
 import play.data.validation.Constraints.Required;
 
 @Entity
 public class Cocinero extends ModeloBase {
 
-	@Required(message="Nombre del cocinero requerido")
+	@Required(message="chef-name-required")
 	private String nombre;
 	
-	@Required(message="Apellidos del cocinero requeridos")
+	@Required(message="chef-surname-required")
 	private String apellidos;
 	
-	@Required(message="País del cocinero requerido")
+	@Required(message="chef-country-required")
 	private String pais;
 	
 	//Relation with fichaContacto (1:1)
 	@OneToOne(cascade=CascadeType.ALL)
-	@Required(message="Ficha de contacto del cocinero requerida")
+	@Required(message="chef-information-required")
 	@Valid
 	@JsonManagedReference
 	private fichaContacto fichaContacto;
@@ -54,7 +52,7 @@ public class Cocinero extends ModeloBase {
 			//METODOS FACTORIAS te devuelven instancias
 			public static Cocinero findById(Long id) {
 				if (id == null) {
-					throw new IllegalArgumentException("Se requiere el id"); 
+					throw new IllegalArgumentException("Se requiere el id");
 				}
 				return find.byId(id);
 			} 
@@ -134,11 +132,22 @@ public class Cocinero extends ModeloBase {
 						.setFirstRow(25*page)
 						.findPagedList();
 			}
+			
+			public static PagedList<Cocinero> findByNombreApellidosPais(String nombre, String apellidos, String pais, Integer page) {
+				return find.query()
+						.where()
+						.contains("nombre", nombre)
+						.contains("apellidos", apellidos)
+						.eq("pais", pais)
+						.setMaxRows(25)
+						.setFirstRow(25*page)
+						.findPagedList();
+			}
 		
 	
 			public static PagedList<Cocinero> findPage(Integer page) {
 				if (page == null) {
-					throw new IllegalArgumentException(); 
+					throw new IllegalArgumentException(); //Le parece un mal invento
 				}
 				return find.query()
 						.setMaxRows(25)

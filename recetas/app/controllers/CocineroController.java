@@ -10,8 +10,10 @@ import models.Cocinero;
 import models.Receta;
 import play.data.Form;
 import play.data.FormFactory;
+import play.i18n.Messages;
 import play.libs.Json;
 import play.mvc.Controller;
+import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
 
@@ -25,9 +27,11 @@ public class CocineroController extends Controller {
 
 			String apikey = request().getQueryString("APIKey");
 			if (apikey == null) {
-				return Results.status(409, new ErrorObject("2","No se ha enviado ninguna APIKey").toJson());
+				Messages messages = Http.Context.current().messages();
+				return Results.status(409, new ErrorObject("2",messages.at("no-apikey-sent")).toJson());
 			}else if (ApiKey.findByKey(apikey) == null){
-				return Results.status(409, new ErrorObject("2","La APIKey es incorrecta").toJson());
+				Messages messages = Http.Context.current().messages();
+				return Results.status(409, new ErrorObject("2",messages.at("\n" + "apikey-is-incorrect")).toJson());
 			}else {
 				//FORM
 	
@@ -44,7 +48,8 @@ public class CocineroController extends Controller {
 				if(cocinero.checkAndCreate()) {
 					return Results.created();
 				}else {
-					return Results.status(409, new ErrorObject("2","Cocinero repetido").toJson());
+					Messages messages = Http.Context.current().messages();
+					return Results.status(409, new ErrorObject("2",messages.at("repeated-chef")).toJson());
 				}
 			}
 
@@ -55,9 +60,11 @@ public class CocineroController extends Controller {
 			
 			String apikey = request().getQueryString("APIKey");
 			if (apikey == null) {
-				return Results.status(409, new ErrorObject("2","No se ha enviado ninguna APIKey").toJson());
+				Messages messages = Http.Context.current().messages();
+				return Results.status(409, new ErrorObject("2",messages.at("no-apikey-sent")).toJson());
 			}else if (ApiKey.findByKey(apikey) == null){
-				return Results.status(409, new ErrorObject("2","La APIKey es incorrecta").toJson());
+				Messages messages = Http.Context.current().messages();
+				return Results.status(409, new ErrorObject("2",messages.at("\n" + "apikey-is-incorrect")).toJson());
 			}else {
 			
 				Cocinero c = Cocinero.findById(id);
@@ -82,9 +89,11 @@ public class CocineroController extends Controller {
 			
 			String apikey = request().getQueryString("APIKey");
 			if (apikey == null) {
-				return Results.status(409, new ErrorObject("2","No se ha enviado ninguna APIKey").toJson());
+				Messages messages = Http.Context.current().messages();
+				return Results.status(409, new ErrorObject("2",messages.at("no-apikey-sent")).toJson());
 			}else if (ApiKey.findByKey(apikey) == null){
-				return Results.status(409, new ErrorObject("2","La APIKey es incorrecta").toJson());
+				Messages messages = Http.Context.current().messages();
+				return Results.status(409, new ErrorObject("2",messages.at("\n" + "apikey-is-incorrect")).toJson());
 			}else {
 				Form<Cocinero> form = formFactory
 						.form(Cocinero.class)
@@ -100,7 +109,8 @@ public class CocineroController extends Controller {
 				if (c.actualizar(id)) {
 				return Results.ok();
 				}else {
-				return Results.status(409, new ErrorObject("2","Error en el UPDATE").toJson());
+					Messages messages = Http.Context.current().messages();
+				return Results.status(409, new ErrorObject("2",messages.at("error-in-the-UPDATE")).toJson());
 				}
 			}
 		}
@@ -110,9 +120,11 @@ public class CocineroController extends Controller {
 			
 			String apikey = request().getQueryString("APIKey");
 			if (apikey == null) {
-				return Results.status(409, new ErrorObject("2","No se ha enviado ninguna APIKey").toJson());
+				Messages messages = Http.Context.current().messages();
+				return Results.status(409, new ErrorObject("2",messages.at("no-apikey-sent")).toJson());
 			}else if (ApiKey.findByKey(apikey) == null){
-				return Results.status(409, new ErrorObject("2","La APIKey es incorrecta").toJson());
+				Messages messages = Http.Context.current().messages();
+				return Results.status(409, new ErrorObject("2",messages.at("\n" + "apikey-is-incorrect")).toJson());
 			}else {
 				Cocinero	 c = Cocinero.findById(id);
 				if(c == null) {
@@ -131,9 +143,11 @@ public class CocineroController extends Controller {
 			
 			String apikey = request().getQueryString("APIKey");
 			if (apikey == null) {
-				return Results.status(409, new ErrorObject("2","No se ha enviado ninguna APIKey").toJson());
+				Messages messages = Http.Context.current().messages();
+				return Results.status(409, new ErrorObject("2",messages.at("no-apikey-sent")).toJson());
 			}else if (ApiKey.findByKey(apikey) == null){
-				return Results.status(409, new ErrorObject("2","La APIKey es incorrecta").toJson());
+				Messages messages = Http.Context.current().messages();
+				return Results.status(409, new ErrorObject("2",messages.at("\n" + "apikey-is-incorrect")).toJson());
 			}else {
 			
 				String nombre = request().getQueryString("nombre");
@@ -266,6 +280,24 @@ public class CocineroController extends Controller {
 						return Results
 								.status(415);
 					}
+				} else if ((nombre != null) && (apellidos != null) && (pais != null)) {//ApellidosPais
+					
+					PagedList<Cocinero> list = Cocinero.findByNombreApellidosPais(nombre, apellidos, pais, page);
+					List<Cocinero> cocineros = list.getList();
+					Integer count = list.getTotalPageCount();
+					
+					if (request().accepts("application/json")) {
+					    return Results
+							    .ok(Json.toJson(cocineros))
+							    .withHeader("X-Cocineros-Count", count.toString());
+					} else if (request().accepts("application/xml")) {
+						return Results
+								.ok(views.xml.cocineros.render(cocineros))
+								.withHeader("X-Cocineros-Count", count.toString());
+					} else {
+						return Results
+								.status(415);
+					}
 				}
 				
 				
@@ -281,9 +313,11 @@ public class CocineroController extends Controller {
 		public Result addRecetaCocinero(Long idCocinero, Long idReceta) {
 			String apikey = request().getQueryString("APIKey");
 			if (apikey == null) {
-				return Results.status(409, new ErrorObject("2","No se ha enviado ninguna APIKey").toJson());
+				Messages messages = Http.Context.current().messages();
+				return Results.status(409, new ErrorObject("2",messages.at("no-apikey-sent")).toJson());
 			}else if (ApiKey.findByKey(apikey) == null){
-				return Results.status(409, new ErrorObject("2","La APIKey es incorrecta").toJson());
+				Messages messages = Http.Context.current().messages();
+				return Results.status(409, new ErrorObject("2",messages.at("\n" + "apikey-is-incorrect")).toJson());
 			}else {
 				Cocinero c = Cocinero.findById(idCocinero);
 				Receta r = Receta.findById(idReceta);
