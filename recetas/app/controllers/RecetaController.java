@@ -8,10 +8,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-
-
 import io.ebean.PagedList;
-import models.ApiKey;
 import models.Cocinero;
 
 import models.Receta;
@@ -28,10 +25,9 @@ public class RecetaController extends Controller {
 private FormFactory formFactory;
 
 
-
 	
 	@With(CheckAPIKeyAction.class)
-	public Result createReceta() {
+	public Result createReceta() {// Creacion de la Receta
 		
 		//FORM
 
@@ -57,7 +53,7 @@ private FormFactory formFactory;
 	
 
 	@With(CheckAPIKeyAction.class)
-	public Result retrieveReceta(Long id) {
+	public Result retrieveReceta(Long id) {// Devuelve una receta dandole su id
 		
 		Receta r = Receta.findById(id);
 		if(r == null) {
@@ -78,7 +74,7 @@ private FormFactory formFactory;
 	}
 	
 	@With(CheckAPIKeyAction.class)
-	public Result updateReceta(Long id) {
+	public Result updateReceta(Long id) {// actualiza una receta dandole su id
 		
 		Form<Receta> form = formFactory
 								.form(Receta.class)
@@ -101,7 +97,7 @@ private FormFactory formFactory;
 	}
 	
 	@With(CheckAPIKeyAction.class)
-	public Result deleteReceta(Long idReceta) {
+	public Result deleteReceta(Long idReceta) {// borra una receta dandole su id
 		Receta r = Receta.findById(idReceta);
 		if(r == null) {
 				return ok(); // Por la idempotencia 
@@ -114,7 +110,8 @@ private FormFactory formFactory;
 	}
 	
 	@With(CheckAPIKeyAction.class)
-	public Result retrieveRecetasCollection(Integer page) {
+	public Result retrieveRecetasCollection(Integer page) {// Saca de manera paginada la collecion de recetas, y permite
+		//a traves de query string la busqueda por dificultad, titulo y tipoCocina
 		
 			String dificultad = request().getQueryString("dificultad");
 			String titulo = request().getQueryString("titulo");
@@ -253,7 +250,7 @@ private FormFactory formFactory;
 	}
 	
 	@With(CheckAPIKeyAction.class)
-	public Result haveCocinero(Long id) {
+	public Result haveCocinero(Long id) {//Devuelve el cocinero al que pertenece una receta
 		
 		Receta r = Receta.findById(id);
 		Cocinero c = r.getCocinero();
@@ -275,7 +272,7 @@ private FormFactory formFactory;
 	}
 	
 	@With(CheckAPIKeyAction.class)
-	public Result assignEtiqueta(Long idReceta, String etiquetaName) {
+	public Result assignEtiqueta(Long idReceta, String etiquetaName) { //Asigna una etiqueta y si no exite la crea
 		
 		Receta r = Receta.findById(idReceta);
 		

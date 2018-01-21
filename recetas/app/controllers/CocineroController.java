@@ -5,7 +5,6 @@ import java.util.List;
 import javax.inject.Inject;
 
 import io.ebean.PagedList;
-import models.ApiKey;
 import models.Cocinero;
 import models.Receta;
 import play.data.Form;
@@ -24,7 +23,7 @@ public class CocineroController extends Controller {
 	private FormFactory formFactory;
 
 		@With(CheckAPIKeyAction.class)
-		public Result createCocinero() {
+		public Result createCocinero() {//Creacion del cocinero
 
 			//FORM
 
@@ -48,7 +47,7 @@ public class CocineroController extends Controller {
 		}
 		
 		@With(CheckAPIKeyAction.class)
-		public Result retrieveCocinero(Long id) {
+		public Result retrieveCocinero(Long id) {//Devuelve un cocinero dandole su id
 
 			Cocinero c = Cocinero.findById(id);
 			if(c == null) {
@@ -69,7 +68,7 @@ public class CocineroController extends Controller {
 		}
 		
 		@With(CheckAPIKeyAction.class)
-		public Result updateCocinero(Long id) {
+		public Result updateCocinero(Long id) {//Actualiza un cocinero dandole su id
 			
 			Form<Cocinero> form = formFactory
 					.form(Cocinero.class)
@@ -92,7 +91,7 @@ public class CocineroController extends Controller {
 		}
 		
 		@With(CheckAPIKeyAction.class)
-		public Result deleteCocinero(Long id) {
+		public Result deleteCocinero(Long id) {// Borra un cocinero dandole su id
 				Cocinero	 c = Cocinero.findById(id);
 				if(c == null) {
 						return ok(); // Por la idempotencia 
@@ -105,7 +104,8 @@ public class CocineroController extends Controller {
 		}
 		
 		@With(CheckAPIKeyAction.class)
-		public Result retrieveCocinerosCollection(Integer page) {
+		public Result retrieveCocinerosCollection(Integer page) { // Saca de manera paginada la collecion de cocineros, y permite
+			//a traves de query string la busqueda por nombre apellidos y pais
 
 			
 			String nombre = request().getQueryString("nombre");
@@ -269,7 +269,7 @@ public class CocineroController extends Controller {
 		}
 		
 		@With(CheckAPIKeyAction.class)
-		public Result addRecetaCocinero(Long idCocinero, Long idReceta) {
+		public Result addRecetaCocinero(Long idCocinero, Long idReceta) {//Añade una receta a un cocinero a traves del id de ambos 
 			Cocinero c = Cocinero.findById(idCocinero);
 			Receta r = Receta.findById(idReceta);
 			

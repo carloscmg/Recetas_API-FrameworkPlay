@@ -21,7 +21,7 @@ public class ApiKeyController extends Controller {
 	private FormFactory formFactory;
 	
 	
-	public Result createApiKey() {
+	public Result createApiKey() {// Se crea el APIKey 
 		//FORM
 
 		Form<ApiKey> form = formFactory
@@ -44,7 +44,7 @@ public class ApiKeyController extends Controller {
 	}
 	
 	@With(CheckAPIKeyAction.class)
-	public Result deleteApiKey(String key) {
+	public Result deleteApiKey(String key) {// Se borra el APIKey
 		
 		ApiKey ak = ApiKey.findByKey(key);
 		if(ak == null) {

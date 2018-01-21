@@ -10,7 +10,7 @@ import play.i18n.Messages;
 import play.mvc.Http;
 import play.mvc.Result;
 
-public class CheckAPIKeyAction extends Simple {
+public class CheckAPIKeyAction extends Simple {  //Se encarga de comprobar la APIKey
 
 	@Override
 	public CompletionStage<Result> call(Context ctx) {

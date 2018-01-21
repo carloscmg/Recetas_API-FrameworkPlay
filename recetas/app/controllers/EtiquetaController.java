@@ -5,7 +5,6 @@ import java.util.List;
 import javax.inject.Inject;
 
 import io.ebean.PagedList;
-import models.ApiKey;
 import models.Etiqueta;
 import models.Receta;
 import play.data.Form;
@@ -18,13 +17,23 @@ import play.mvc.Result;
 import play.mvc.Results;
 import play.mvc.With;
 
+
+
+
+
+
 public class EtiquetaController extends Controller {
 
 	@Inject 
 	private FormFactory formFactory;
+	
+
+		//No hay metodo de creacion de etiquetas por que se crean en el RecetaController 
+	
+	
 
 		@With(CheckAPIKeyAction.class)
-		public Result updateEtiqueta(String nombre) {
+		public Result updateEtiqueta(String nombre) {//se actualiza una etiqueta dandole su nombre
 			
 			Form<Etiqueta> form = formFactory
 									.form(Etiqueta.class)
@@ -47,7 +56,7 @@ public class EtiquetaController extends Controller {
 		}
 		
 		@With(CheckAPIKeyAction.class)
-		public Result deleteEtiqueta(String nombre) {
+		public Result deleteEtiqueta(String nombre) {//Se borra una etiqueta dandole su nombre
 			
 			Etiqueta e = Etiqueta.findByName(nombre);
 			if(e == null) {
@@ -62,7 +71,7 @@ public class EtiquetaController extends Controller {
 		}
 		
 		@With(CheckAPIKeyAction.class)
-		public Result retrieveEtiquetasCollection(Integer page) {
+		public Result retrieveEtiquetasCollection(Integer page) {// Devuelve de panera paginada la coleccion de etiquetas
 			PagedList<Etiqueta> list = Etiqueta.findPage(page);
 			List<Etiqueta> etiquetas = list.getList();
 			Integer count = list.getTotalPageCount();
@@ -83,7 +92,7 @@ public class EtiquetaController extends Controller {
 		}
 		
 		@With(CheckAPIKeyAction.class)
-		public Result retrieveByEtiqueta(String etiquetaName) {
+		public Result retrieveByEtiqueta(String etiquetaName) { // Devuelve todas las recetas que pertenece a determinada etiqueta
 			
 				Etiqueta e = Etiqueta.findByName(etiquetaName);
 				if(e == null) {
