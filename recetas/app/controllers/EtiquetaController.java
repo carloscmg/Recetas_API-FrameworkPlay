@@ -16,108 +16,74 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
+import play.mvc.With;
 
 public class EtiquetaController extends Controller {
 
 	@Inject 
 	private FormFactory formFactory;
 
-		
+		@With(CheckAPIKeyAction.class)
 		public Result updateEtiqueta(String nombre) {
 			
-			String apikey = request().getQueryString("APIKey");
-			if (apikey == null) {
-				Messages messages = Http.Context.current().messages();
-				return Results.status(409, new ErrorObject("2",messages.at("no-apikey-sent")).toJson());
-			}else if (ApiKey.findByKey(apikey) == null){
-				Messages messages = Http.Context.current().messages();
-				return Results.status(409, new ErrorObject("2",messages.at("\n" + "apikey-is-incorrect")).toJson());		
-				}else {
+			Form<Etiqueta> form = formFactory
+									.form(Etiqueta.class)
+									.bindFromRequest();
 			
-				Form<Etiqueta> form = formFactory
-										.form(Etiqueta.class)
-										.bindFromRequest();
-				
-				if(form.hasErrors()){
-					return Results.status(409, form.errorsAsJson());
-				}
-				
-				
-				Etiqueta e = form.get();
-				
-				if (e.actualizar(nombre)) {
-					return Results.ok();
-				}else {
-					Messages messages = Http.Context.current().messages();
-					return Results.status(409, new ErrorObject("2",messages.at("error-in-the-UPDATE")).toJson());
-				}
+			if(form.hasErrors()){
+				return Results.status(409, form.errorsAsJson());
 			}
-					
-					
+			
+			
+			Etiqueta e = form.get();
+			
+			if (e.actualizar(nombre)) {
+				return Results.ok();
+			}else {
+				Messages messages = Http.Context.current().messages();
+				return Results.status(409, new ErrorObject("2",messages.at("error-in-the-UPDATE")).toJson());
+			}
+
 		}
 		
-
+		@With(CheckAPIKeyAction.class)
 		public Result deleteEtiqueta(String nombre) {
 			
-			String apikey = request().getQueryString("APIKey");
-			if (apikey == null) {
-				Messages messages = Http.Context.current().messages();
-				return Results.status(409, new ErrorObject("2",messages.at("no-apikey-sent")).toJson());
-			}else if (ApiKey.findByKey(apikey) == null){
-				Messages messages = Http.Context.current().messages();
-				return Results.status(409, new ErrorObject("2",messages.at("\n" + "apikey-is-incorrect")).toJson());
-			}else {
-				Etiqueta e = Etiqueta.findByName(nombre);
-				if(e == null) {
-						return ok(); // Por la idempotencia 
-				}
-				if(e.borrar()) {
-					return ok();
-				}else {
-					return internalServerError();
-				}
+			Etiqueta e = Etiqueta.findByName(nombre);
+			if(e == null) {
+					return ok(); // Por la idempotencia 
 			}
-		}
-		
-
-		public Result retrieveEtiquetasCollection(Integer page) {
-			String apikey = request().getQueryString("APIKey");
-			if (apikey == null) {
-				Messages messages = Http.Context.current().messages();
-				return Results.status(409, new ErrorObject("2",messages.at("no-apikey-sent")).toJson());			
-				}else if (ApiKey.findByKey(apikey) == null){
-				Messages messages = Http.Context.current().messages();
-				return Results.status(409, new ErrorObject("2",messages.at("\n" + "apikey-is-incorrect")).toJson());
+			if(e.borrar()) {
+				return ok();
 			}else {
-				PagedList<Etiqueta> list = Etiqueta.findPage(page);
-				List<Etiqueta> etiquetas = list.getList();
-				Integer count = list.getTotalPageCount();
-				
-				if (request().accepts("application/json")) {
-				    return Results
-						    .ok(Json.toJson(etiquetas))
-						    .withHeader("X-Etiquetas-Count", count.toString());
-				} else if (request().accepts("application/xml")) {
-					return Results
-							.ok(views.xml.etiquetas.render(etiquetas))
-							.withHeader("X-Etiquetas-Count", count.toString());
-				} else {
-					return Results
-							.status(415);
-				}
+				return internalServerError();
 			}
-		}
-		
-		public Result retrieveByEtiqueta(String etiquetaName) {
 			
-			String apikey = request().getQueryString("APIKey");
-			if (apikey == null) {
-				Messages messages = Http.Context.current().messages();
-				return Results.status(409, new ErrorObject("2",messages.at("no-apikey-sent")).toJson());			
-				}else if (ApiKey.findByKey(apikey) == null){
-				Messages messages = Http.Context.current().messages();
-				return Results.status(409, new ErrorObject("2",messages.at("\n" + "apikey-is-incorrect")).toJson());
-			}else {
+		}
+		
+		@With(CheckAPIKeyAction.class)
+		public Result retrieveEtiquetasCollection(Integer page) {
+			PagedList<Etiqueta> list = Etiqueta.findPage(page);
+			List<Etiqueta> etiquetas = list.getList();
+			Integer count = list.getTotalPageCount();
+			
+			if (request().accepts("application/json")) {
+			    return Results
+					    .ok(Json.toJson(etiquetas))
+					    .withHeader("X-Etiquetas-Count", count.toString());
+			} else if (request().accepts("application/xml")) {
+				return Results
+						.ok(views.xml.etiquetas.render(etiquetas))
+						.withHeader("X-Etiquetas-Count", count.toString());
+			} else {
+				return Results
+						.status(415);
+			}
+
+		}
+		
+		@With(CheckAPIKeyAction.class)
+		public Result retrieveByEtiqueta(String etiquetaName) {
 			
 				Etiqueta e = Etiqueta.findByName(etiquetaName);
 				if(e == null) {
@@ -134,13 +100,9 @@ public class EtiquetaController extends Controller {
 				}else {
 					return Results.status(415);
 				}
-			}
 
 		}
 		
-
-		
-		
-		
+	
 	
 }

@@ -2,6 +2,8 @@ package controllers;
 
 import play.mvc.Result;
 import play.mvc.Results;
+import play.mvc.With;
+
 import java.util.List;
 
 import javax.inject.Inject;
@@ -28,133 +30,91 @@ private FormFactory formFactory;
 
 
 	
-
+	@With(CheckAPIKeyAction.class)
 	public Result createReceta() {
 		
-		String apikey = request().getQueryString("APIKey");
-		if (apikey == null) {
-			Messages messages = Http.Context.current().messages();
-			return Results.status(409, new ErrorObject("2",messages.at("no-apikey-sent")).toJson());
-		}else if (ApiKey.findByKey(apikey) == null){
-			Messages messages = Http.Context.current().messages();
-			return Results.status(409, new ErrorObject("2",messages.at("\n" + "apikey-is-incorrect")).toJson());
-		}else {
+		//FORM
+
+		Form<Receta> form = formFactory
+								.form(Receta.class)
+								.bindFromRequest();
 		
-	
-			//FORM
-	
-			Form<Receta> form = formFactory
-									.form(Receta.class)
-									.bindFromRequest();
-			
-			if(form.hasErrors()){
-				return Results.status(409, form.errorsAsJson());
-			}
-			
-			Receta receta = form.get();
-			
-			if(receta.checkAndCreate()) {
-				return Results.created();
-			}else {
-				Messages messages = Http.Context.current().messages();
-				return Results.status(409, new ErrorObject("2",messages.at("repeated-recipe")).toJson());
-			}
+		if(form.hasErrors()){
+			return Results.status(409, form.errorsAsJson());
 		}
+		
+		Receta receta = form.get();
+		
+		if(receta.checkAndCreate()) {
+			return Results.created();
+		}else {
+			Messages messages = Http.Context.current().messages();
+			return Results.status(409, new ErrorObject("2",messages.at("repeated-recipe")).toJson());
+		}
+		
 
 	}
 	
 
+	@With(CheckAPIKeyAction.class)
 	public Result retrieveReceta(Long id) {
-		String apikey = request().getQueryString("APIKey");
 		
-		if (apikey == null) {
-			Messages messages = Http.Context.current().messages();
-			return Results.status(409, new ErrorObject("2",messages.at("no-apikey-sent")).toJson());
-		}else if (ApiKey.findByKey(apikey) == null){
-			Messages messages = Http.Context.current().messages();
-			return Results.status(409, new ErrorObject("2",messages.at("\n" + "apikey-is-incorrect")).toJson());
+		Receta r = Receta.findById(id);
+		if(r == null) {
+				return Results.notFound();
 		}else {
-			Receta r = Receta.findById(id);
-			if(r == null) {
-					return Results.notFound();
-			}else {
-				if (request().accepts("application/json")) {
-				    return Results
-						    .ok(Json.toJson(r));
-				} else if (request().accepts("application/xml")) {
-					return Results
-							.ok(views.xml.receta.render(r));
-				} else {
-					return Results
-							.status(415);
-				}
+			if (request().accepts("application/json")) {
+			    return Results
+					    .ok(Json.toJson(r));
+			} else if (request().accepts("application/xml")) {
+				return Results
+						.ok(views.xml.receta.render(r));
+			} else {
+				return Results
+						.status(415);
 			}
 		}
+		
 	}
 	
+	@With(CheckAPIKeyAction.class)
 	public Result updateReceta(Long id) {
 		
-		String apikey = request().getQueryString("APIKey");
-		if (apikey == null) {
-			Messages messages = Http.Context.current().messages();
-			return Results.status(409, new ErrorObject("2",messages.at("no-apikey-sent")).toJson());
-		}else if (ApiKey.findByKey(apikey) == null){
-			Messages messages = Http.Context.current().messages();
-			return Results.status(409, new ErrorObject("2",messages.at("\n" + "apikey-is-incorrect")).toJson());
+		Form<Receta> form = formFactory
+								.form(Receta.class)
+								.bindFromRequest();
+		
+		if(form.hasErrors()){
+			return Results.status(409, form.errorsAsJson());
+		}
+		
+		
+		Receta r = form.get();
+		
+		if (r.actualizar(id)) {
+			return Results.ok();
 		}else {
-			Form<Receta> form = formFactory
-									.form(Receta.class)
-									.bindFromRequest();
-			
-			if(form.hasErrors()){
-				return Results.status(409, form.errorsAsJson());
-			}
-			
-			
-			Receta r = form.get();
-			
-			if (r.actualizar(id)) {
-				return Results.ok();
-			}else {
-				Messages messages = Http.Context.current().messages();
-				return Results.status(409, new ErrorObject("2",messages.at("error-in-the-UPDATE")).toJson());
-			}
-				
-		}	
+			Messages messages = Http.Context.current().messages();
+			return Results.status(409, new ErrorObject("2",messages.at("error-in-the-UPDATE")).toJson());
+		}
+	
 	}
 	
-
+	@With(CheckAPIKeyAction.class)
 	public Result deleteReceta(Long idReceta) {
-		String apikey = request().getQueryString("APIKey");
-		if (apikey == null) {
-			Messages messages = Http.Context.current().messages();
-			return Results.status(409, new ErrorObject("2",messages.at("no-apikey-sent")).toJson());
-		}else if (ApiKey.findByKey(apikey) == null){
-			Messages messages = Http.Context.current().messages();
-			return Results.status(409, new ErrorObject("2",messages.at("\n" + "apikey-is-incorrect")).toJson());
+		Receta r = Receta.findById(idReceta);
+		if(r == null) {
+				return ok(); // Por la idempotencia 
+		}
+		if(r.delete()) {
+			return ok();
 		}else {
-			Receta r = Receta.findById(idReceta);
-			if(r == null) {
-					return ok(); // Por la idempotencia 
-			}
-			if(r.delete()) {
-				return ok();
-			}else {
-				return internalServerError();
-			}
+			return internalServerError();
 		}
 	}
 	
- 
+	@With(CheckAPIKeyAction.class)
 	public Result retrieveRecetasCollection(Integer page) {
-		String apikey = request().getQueryString("APIKey");
-		if (apikey == null) {
-			Messages messages = Http.Context.current().messages();
-			return Results.status(409, new ErrorObject("2",messages.at("no-apikey-sent")).toJson());
-		}else if (ApiKey.findByKey(apikey) == null){
-			Messages messages = Http.Context.current().messages();
-			return Results.status(409, new ErrorObject("2",messages.at("\n" + "apikey-is-incorrect")).toJson());
-		}else {
 		
 			String dificultad = request().getQueryString("dificultad");
 			String titulo = request().getQueryString("titulo");
@@ -288,69 +248,49 @@ private FormFactory formFactory;
 				
 			
 			return Results.notFound();
-		}
+		
 		
 	}
 	
+	@With(CheckAPIKeyAction.class)
 	public Result haveCocinero(Long id) {
 		
-		String apikey = request().getQueryString("APIKey");
-		if (apikey == null) {
-			Messages messages = Http.Context.current().messages();
-			return Results.status(409, new ErrorObject("2",messages.at("no-apikey-sent")).toJson());
-		}else if (ApiKey.findByKey(apikey) == null){
-			Messages messages = Http.Context.current().messages();
-			return Results.status(409, new ErrorObject("2",messages.at("\n" + "apikey-is-incorrect")).toJson());
-		}else {
+		Receta r = Receta.findById(id);
+		Cocinero c = r.getCocinero();
 		
-			Receta r = Receta.findById(id);
-			Cocinero c = r.getCocinero();
-			
-			if (c == null) {
-				return Results.notFound();
+		if (c == null) {
+			return Results.notFound();
+		} else {
+			if (request().accepts("application/json")) {
+			    return Results
+					    .ok(Json.toJson(c));
+			} else if (request().accepts("application/xml")) {
+				return Results
+						.ok(views.xml.cocinero.render(c));
 			} else {
-				if (request().accepts("application/json")) {
-				    return Results
-						    .ok(Json.toJson(c));
-				} else if (request().accepts("application/xml")) {
-					return Results
-							.ok(views.xml.cocinero.render(c));
-				} else {
-					return Results
-							.status(415);
-				}
+				return Results
+						.status(415);
 			}
 		}
 	}
 	
-	
+	@With(CheckAPIKeyAction.class)
 	public Result assignEtiqueta(Long idReceta, String etiquetaName) {
 		
-		String apikey = request().getQueryString("APIKey");
-		if (apikey == null) {
-			Messages messages = Http.Context.current().messages();
-			return Results.status(409, new ErrorObject("2",messages.at("no-apikey-sent")).toJson());		
-			}else if (ApiKey.findByKey(apikey) == null){
-				Messages messages = Http.Context.current().messages();
-				return Results.status(409, new ErrorObject("2",messages.at("\n" + "apikey-is-incorrect")).toJson());
+		Receta r = Receta.findById(idReceta);
+		
+		if(r == null) {
+			return Results.notFound();
+		}
+		
+		if(r.addEtiquetaAndSave(etiquetaName)) {
+			return  created();
 		}else {
-		
-			Receta r = Receta.findById(idReceta);
 			
-			if(r == null) {
-				return Results.notFound();
-			}
+			r.deleteEtiqueta(etiquetaName);
 			
-			if(r.addEtiquetaAndSave(etiquetaName)) {
-				return  created();
-			}else {
-				
-				r.deleteEtiqueta(etiquetaName);
-				
-				Messages messages = Http.Context.current().messages();
-				return ok(messages.at("unassigned-tag"));
-			}
-		
+			Messages messages = Http.Context.current().messages();
+			return ok(messages.at("unassigned-tag"));
 		}
 		
 	}

@@ -10,6 +10,7 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
+import play.mvc.With;
 
 
 
@@ -42,27 +43,17 @@ public class ApiKeyController extends Controller {
 
 	}
 	
-	
+	@With(CheckAPIKeyAction.class)
 	public Result deleteApiKey(String key) {
 		
-		String apikey = request().getQueryString("APIKey");
-		if (apikey == null) {
-			Messages messages = Http.Context.current().messages();
-			return Results.status(409, new ErrorObject("2",messages.at("no-apikey-sent")).toJson());
-		}else if (ApiKey.findByKey(apikey) == null){
-			Messages messages = Http.Context.current().messages();
-			return Results.status(409, new ErrorObject("2",messages.at("\n" + "apikey-is-incorrect")).toJson());		
-			}else {
-		
-			ApiKey ak = ApiKey.findByKey(key);
-			if(ak == null) {
-					return ok(); // Por la idempotencia 
-			}
-			if(ak.delete()) {
-				return ok();
-			}else {
-				return internalServerError();
-			}
+		ApiKey ak = ApiKey.findByKey(key);
+		if(ak == null) {
+				return ok(); // Por la idempotencia 
+		}
+		if(ak.delete()) {
+			return ok();
+		}else {
+			return internalServerError();
 		}
 	}
 
