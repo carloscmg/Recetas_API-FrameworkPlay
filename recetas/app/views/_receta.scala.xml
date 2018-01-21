@@ -1,0 +1,23 @@
+@(receta: Receta)
+<receta>
+	<id>@receta.getId()</id>
+	<titulo>@receta.getTitulo()</titulo>
+	<tipoCocina>@receta.getTipoCocina()</tipoCocina>
+	<dificultad>@receta.getDificultad()</dificultad>
+	<tiempo>@receta.getTiempo()</tiempo>
+	<elaboracion>@receta.getElaboracion()</elaboracion>
+	<numeroPersonas>@receta.getNumeroPersonas()</numeroPersonas>
+	<imagen>@receta.getImagen()</imagen>
+	<ingredientes>
+		@for(ingrediente <-receta.getIngredientes()) {
+       		 @_ingrediente(ingrediente)
+    		}
+	</ingredientes>
+	<etiquetas>
+		@for(etiqueta <-receta.getEtiquetas()) {
+       		 @_etiqueta(etiqueta)
+    		}
+	</etiquetas>
+	
+	
+</receta>

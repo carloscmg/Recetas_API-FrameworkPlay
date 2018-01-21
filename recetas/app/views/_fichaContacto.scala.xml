@@ -1,0 +1,5 @@
+@(ficha: fichaContacto)
+<id>@ficha.getId()</id>
+<telefono>@ficha.getTelefono()</telefono>
+<email>@ficha.getEmail()</email>
+<web>@ficha.getWeb()</web>

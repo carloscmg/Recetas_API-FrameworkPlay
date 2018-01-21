@@ -1,0 +1,8 @@
+@(etiquetas: List[Etiqueta])
+
+<?xml version="1.0" enconding="UTF-8"?>
+<etiquetas>
+    @for(etiqueta <- etiquetas) {
+        @_etiqueta(etiqueta)
+    }
+</etiquetas>

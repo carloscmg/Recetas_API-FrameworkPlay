@@ -1,0 +1,5 @@
+@(etiqueta: Etiqueta)
+<etiqueta>
+	<id>@etiqueta.getId()</id>
+	<nombre>@etiqueta.getNombre()</nombre>
+</etiqueta>	

@@ -1,0 +1,13 @@
+@(cocinero: Cocinero)
+<cocinero>
+	<id>@cocinero.getId()</id>
+	<nombre>@cocinero.getNombre()</nombre>
+	<apellidos>@cocinero.getApellidos()</apellidos>
+	<pais>@cocinero.getPais()</pais>
+	<fichaContacto>@_fichaContacto(cocinero.getFichaContacto())</fichaContacto>
+	<recetas>
+		@for(receta <-cocinero.getRecetas()) {
+       		 @_receta(receta)
+    		}
+	</recetas>
+</cocinero>	

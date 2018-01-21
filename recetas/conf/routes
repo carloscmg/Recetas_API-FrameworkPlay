@@ -1,0 +1,59 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+#Routes para las Recetas
+#Acciones para un receta
+
+POST			/receta			controllers.RecetaController.createReceta
+GET			/receta/:id		controllers.RecetaController.retrieveReceta(id: Long)
+PUT			/receta/:id		controllers.RecetaController.updateReceta(id: Long)
+DELETE		/receta/:id		controllers.RecetaController.deleteReceta(id: Long)
+
+#Acciones para varias recetas
+
+GET		/recetas/:page			controllers.RecetaController.retrieveRecetasCollection(page: Integer)
+
+#Routes para los Cocineros
+#Acciones para un cocinero
+
+POST			/cocinero			controllers.CocineroController.createCocinero
+GET			/cocinero/:id		controllers.CocineroController.retrieveCocinero(id: Long)
+PUT			/cocinero/:id		controllers.CocineroController.updateCocinero(id: Long)
+DELETE		/cocinero/:id		controllers.CocineroController.deleteCocinero(id: Long)
+
+#Acciones para varias cocineros
+
+GET		/cocineros/:page			controllers.CocineroController.retrieveCocinerosCollection(page: Integer)
+
+#Routes para las Etiquetas
+
+GET			/etiquetas/:page		controllers.EtiquetaController.retrieveEtiquetasCollection(page: Integer)
+PUT			/etiqueta/:name		controllers.EtiquetaController.updateEtiqueta(name)
+DELETE		/etiqueta/:name		controllers.EtiquetaController.deleteEtiqueta(name)
+
+
+#Accion receta y Cocinero
+POST 	/cocinero/:idCocinero/receta/:idReceta 		controllers.CocineroController.addRecetaCocinero(idCocinero: Long , idReceta: Long)
+GET		/recetaCocinero/:id		controllers.RecetaController.haveCocinero(id: Long)
+
+#Acciones para receta y etiquetas
+POST 	/receta/:idReceta/etiqueta/:etiquetaName		controllers.RecetaController.assignEtiqueta(idReceta: Long, etiquetaName)
+GET		/recetasEtiqueta/:etiquetaName 	controllers.EtiquetaController.retrieveByEtiqueta(etiquetaName)
+
+#Acciones para APIKey
+
+POST			/apikey			controllers.ApiKeyController.createApiKey
+DELETE		/apikey/:key		controllers.ApiKeyController.deleteApiKey(key)
+
+
+
+# An example controller showing a sample home page
+GET     /                           controllers.HomeController.index
+# An example controller showing how to use dependency injection
+GET     /count                      controllers.CountController.count
+# An example controller showing how to write asynchronous code
+GET     /message                    controllers.AsyncController.message
+
+# Map static resources from the /public folder to the /assets URL path
+GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
