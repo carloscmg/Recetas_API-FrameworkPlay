@@ -1,6 +1,10 @@
 import org.junit.Test;
+
+import play.mvc.Http.RequestBuilder;
+import play.mvc.Result;
+import play.test.Helpers;
 import play.test.WithApplication;
-import play.twirl.api.Content;
+
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -11,14 +15,18 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class FunctionalTest extends WithApplication {
 
-    @Test
-    public void renderTemplate() {
-        // If you are calling out to Assets, then you must instantiate an application
-        // because it makes use of assets metadata that is configured from
-        // the application.
 
-        Content html = views.html.index.render("Your new application is ready.");
-        assertThat("text/html").isEqualTo(html.contentType());
-        assertThat(html.body()).contains("Your new application is ready.");
+    
+    @Test
+    public void testPath() {
+
+    RequestBuilder req = Helpers.fakeRequest()
+	    .method("GET")
+	    .uri("/recetas/0?APIKey=123")
+	    .header("Accept", "application/xml")
+	    .bodyText(""); 
+	    Result r = Helpers.route(app, req);
+	    assertThat(r.status()).isEqualTo(200);
     }
+    
 }
